@@ -2,38 +2,30 @@ class Solution:
     def solveNQueens(self, n: int) -> List[List[str]]:
         board = [["."]*n for _ in range(n)]
         rst = []
-        row, col, invalidDiagonal1, invalidDiagonal2 = [-1], set(), set(), set()
+        col, diagonal1, diagonal2 =  set(), set(), set()
 
-        def validate(i, j):
-            if i in row or j in col or j-i in invalidDiagonal1 or j+i in invalidDiagonal2:
-                return False
-            return True
-
-        def searchPosition(queens):
+        def searchPosition(queens, cur_row):
             if queens == n:
                 cur = deepcopy(board)
                 rst.append(cur)
+            
+            for j in range(n):
+                if j not in col and j-cur_row not in diagonal1 and j+cur_row not in diagonal2:
+                    board[cur_row][j] = 'Q'
+                    queens += 1
+                    col.add(j)
+                    diagonal1.add(j-cur_row)
+                    diagonal2.add(j+cur_row)
 
-            for i in range(row[-1]+1,n):
-                for j in range(n):
-                    if validate(i, j):
-                        board[i][j] = 'Q'
-                        queens += 1
-                        row.append(i)
-                        col.add(j)
-                        invalidDiagonal1.add(j-i)
-                        invalidDiagonal2.add(j+i)
+                    searchPosition(queens, cur_row+1)
 
-                        searchPosition(queens)
+                    board[cur_row][j] = "."
+                    queens -= 1
+                    col.remove(j)
+                    diagonal1.remove(j-cur_row)
+                    diagonal2.remove(j+cur_row)
 
-                        board[i][j] = "."
-                        queens -= 1
-                        row.pop()
-                        col.remove(j)
-                        invalidDiagonal1.remove(j-i)
-                        invalidDiagonal2.remove(j+i)
-
-        searchPosition(0)
+        searchPosition(0, 0)
         for comb in rst:
             for i in range(len(comb)):
                 comb[i] = "".join(comb[i])
